@@ -65,7 +65,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn default_with_config(config: Config) -> Self {
+    pub fn default_with_config(config: Config, playback: Option<Playback>) -> Self {
         let library = Arc::new(Library {
             saved_albums: Promise::Empty,
             saved_tracks: Promise::Empty,
@@ -75,13 +75,13 @@ impl AppState {
             playback_item: None,
             library: Arc::clone(&library),
         });
-        let playback = Playback {
+        let playback = playback.unwrap_or(Playback {
             state: PlaybackState::Stopped,
             now_playing: None,
             queue_behavior: QueueBehavior::Sequential,
             queue: Vector::new(),
             volume: config.volume,
-        };
+        });
         Self {
             session: SessionService::empty(),
             route: Nav::Home,

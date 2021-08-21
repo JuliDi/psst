@@ -2,11 +2,11 @@ use std::{convert::TryFrom, ops::Deref, str::FromStr, sync::Arc, time::Duration}
 
 use druid::{im::Vector, lens::Map, Data, Lens};
 use psst_core::item_id::{ItemId, ItemIdType};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::data::{AlbumLink, ArtistLink};
 
-#[derive(Clone, Debug, Data, Lens, Deserialize)]
+#[derive(Clone, Debug, Data, Lens, Serialize, Deserialize)]
 pub struct Track {
     #[serde(default)]
     pub id: TrackId,
@@ -62,7 +62,7 @@ impl Track {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String")]
 pub struct TrackId(ItemId);
 
@@ -121,7 +121,7 @@ pub struct AudioAnalysis {
     pub segments: Vector<AudioSegment>,
 }
 
-#[derive(Clone, Data, Debug, Deserialize)]
+#[derive(Clone, Data, Debug, Serialize, Deserialize)]
 pub struct AudioSegment {
     #[serde(flatten)]
     pub interval: TimeInterval,
@@ -130,7 +130,7 @@ pub struct AudioSegment {
     pub loudness_max_time: f64,
 }
 
-#[derive(Clone, Data, Debug, Deserialize)]
+#[derive(Clone, Data, Debug, Serialize, Deserialize)]
 pub struct TimeInterval {
     #[serde(deserialize_with = "super::utils::deserialize_secs")]
     pub start: Duration,

@@ -14,6 +14,7 @@ use druid::AppLauncher;
 use env_logger::{Builder, Env};
 use webapi::WebApi;
 
+use crate::data::Playback;
 use crate::{
     data::{AppState, Config},
     delegate::Delegate,
@@ -33,7 +34,16 @@ fn main() {
     .init();
 
     let config = Config::load().unwrap_or_default();
-    let state = AppState::default_with_config(config);
+
+    let playback = if let Ok(file) = std::fs::File::open("/Users/julian/Desktop/play_config.conf") {
+        log::info!("loading playback config");
+        Some(serde_json::from_reader(file).expect("Failed to read config"))
+    } else {
+        log::info!("No playback config found");
+        None
+    };
+
+    let state = AppState::default_with_config(config, playback);
 
     WebApi::new(
         state.session.clone(),
@@ -47,7 +57,7 @@ fn main() {
     if state.config.has_credentials() {
         // Credentials are configured, open the main window.
         let window = ui::main_window();
-        delegate = Delegate::with_main(window.id);
+        delegate = Deleqgate::with_main(window.id);
         launcher = AppLauncher::with_window(window).configure_env(ui::theme::setup);
     } else {
         // No configured credentials, open the preferences.

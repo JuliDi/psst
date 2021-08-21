@@ -1,13 +1,14 @@
+use serde::{Deserialize, Serialize};
 use std::{convert::TryInto, fmt, ops::Deref};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ItemIdType {
     Track,
     Podcast,
     Unknown,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ItemId {
     pub id: u128,
     pub id_type: ItemIdType,

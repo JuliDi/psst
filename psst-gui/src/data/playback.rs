@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::{fmt, sync::Arc, time::Duration};
 
 use druid::{im::Vector, Data, Lens};
@@ -8,7 +9,7 @@ use crate::data::{
 
 use super::RecommendationsRequest;
 
-#[derive(Clone, Debug, Data, Lens)]
+#[derive(Clone, Debug, Data, Lens, Serialize, Deserialize)]
 pub struct Playback {
     pub state: PlaybackState,
     pub now_playing: Option<NowPlaying>,
@@ -17,13 +18,13 @@ pub struct Playback {
     pub volume: f64,
 }
 
-#[derive(Clone, Debug, Data, Lens)]
+#[derive(Clone, Debug, Data, Lens, Serialize, Deserialize)]
 pub struct QueuedTrack {
     pub track: Arc<Track>,
     pub origin: PlaybackOrigin,
 }
 
-#[derive(Copy, Clone, Debug, Data, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Data, Eq, PartialEq, Serialize, Deserialize)]
 pub enum QueueBehavior {
     Sequential,
     Random,
@@ -31,7 +32,7 @@ pub enum QueueBehavior {
     LoopAll,
 }
 
-#[derive(Copy, Clone, Debug, Data, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Data, Eq, PartialEq, Serialize, Deserialize)]
 pub enum PlaybackState {
     Loading,
     Playing,
@@ -39,11 +40,12 @@ pub enum PlaybackState {
     Stopped,
 }
 
-#[derive(Clone, Debug, Data, Lens)]
+#[derive(Clone, Debug, Data, Lens, Serialize, Deserialize)]
 pub struct NowPlaying {
     pub item: Arc<Track>,
     pub origin: PlaybackOrigin,
     pub progress: Duration,
+    #[serde(skip_serializing, skip_deserializing)]
     pub analysis: Promise<AudioAnalysis, TrackId>,
 }
 
@@ -57,7 +59,7 @@ impl NowPlaying {
     }
 }
 
-#[derive(Clone, Debug, Data)]
+#[derive(Clone, Debug, Data, Serialize, Deserialize)]
 pub enum PlaybackOrigin {
     Library,
     Album(AlbumLink),

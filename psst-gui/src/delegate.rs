@@ -1,12 +1,13 @@
 use std::{sync::Arc, thread};
 
 use druid::{
-    commands, AppDelegate, Application, Command, DelegateCtx, Env, Handled, ImageBuf, Target,
-    WindowId,
+    commands, AppDelegate, Application, Command, DelegateCtx, Env, Event, Handled, ImageBuf,
+    Target, WindowId,
 };
 use lru_cache::LruCache;
 
 use crate::{cmd, data::AppState, ui, webapi::WebApi, widget::remote_image};
+use psst_core::cache::mkdir_if_not_exists;
 
 pub struct Delegate {
     image_cache: LruCache<Arc<str>, ImageBuf>,
@@ -50,6 +51,18 @@ impl Delegate {
 }
 
 impl AppDelegate<AppState> for Delegate {
+    fn event(
+        &mut self,
+        ctx: &mut DelegateCtx,
+        window_id: WindowId,
+        event: Event,
+        data: &mut AppState,
+        env: &Env,
+    ) -> Option<Event> {
+        log::warn!("Event received: {:?}", event);
+        Some(event)
+    }
+
     fn command(
         &mut self,
         ctx: &mut DelegateCtx,
@@ -81,6 +94,12 @@ impl AppDelegate<AppState> for Delegate {
                     ctx.new_window(window);
                 }
             }
+            Handled::Yes
+        } else if cmd.is(commands::QUIT_APP) {
+            let file = std::fs::File::create("/Users/julian/Desktop/play_config.conf")
+                .expect("Failed to create config");
+            serde_json::to_writer_pretty(file, &data.playback).expect("Failed to write config");
+            log::info!("saved playback config");
             Handled::Yes
         } else if let Some(text) = cmd.get(cmd::COPY) {
             Application::global().clipboard().put_string(&text);
